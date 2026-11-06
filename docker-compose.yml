@@ -1,0 +1,33 @@
+# Local production-like stack: PostgreSQL + the E-Library API/website.
+# Usage: docker compose up --build   then open http://localhost:3000
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: elibrary
+      POSTGRES_USER: elibrary
+      POSTGRES_PASSWORD: elibrary
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elibrary"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://elibrary:elibrary@db:5432/elibrary
+      JWT_SECRET: ${JWT_SECRET:-change-this-long-random-secret}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@elibrary.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@12345}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+
+volumes:
+  pgdata:

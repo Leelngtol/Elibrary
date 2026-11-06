@@ -1,0 +1,9 @@
+**/node_modules
+**/.env
+backend/data/pgdata
+backend/public
+web/dist
+android
+docs
+.git
+.github
